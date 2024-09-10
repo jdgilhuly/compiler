@@ -2,6 +2,7 @@
 #include <cctype>
 #include <unordered_map>
 
+// Map of keywords to their corresponding token types
 static std::unordered_map<std::string, TokenType> keywords = {
     {"if", TokenType::IF},
     {"else", TokenType::ELSE},
@@ -12,12 +13,14 @@ static std::unordered_map<std::string, TokenType> keywords = {
 
 Lexer::Lexer(std::string source) : source(std::move(source)) {}
 
+// Main tokenization method
 std::vector<Token> Lexer::tokenize() {
     std::vector<Token> tokens;
     while (!isAtEnd()) {
         start = current;
         char c = advance();
         switch (c) {
+            // Handle single-character tokens
             case '(': addToken(TokenType::LPAREN); break;
             case ')': addToken(TokenType::RPAREN); break;
             case '{': addToken(TokenType::LBRACE); break;
@@ -28,12 +31,13 @@ std::vector<Token> Lexer::tokenize() {
             case '*': addToken(TokenType::MULTIPLY); break;
             case '/': addToken(TokenType::DIVIDE); break;
             case '=':
+                // Handle '=' and '==' tokens
                 addToken(match('=') ? TokenType::EQUAL : TokenType::ASSIGN);
                 break;
+            // Ignore whitespace
             case ' ':
             case '\r':
             case '\t':
-                // Ignore whitespace
                 break;
             case '\n':
                 line++;
@@ -45,6 +49,7 @@ std::vector<Token> Lexer::tokenize() {
                     tokens.push_back(identifier());
                 } else {
                     // Handle error: unexpected character
+                    // TODO: Implement error handling
                 }
         }
     }
@@ -52,13 +57,13 @@ std::vector<Token> Lexer::tokenize() {
     return tokens;
 }
 
-// Implement other Lexer methods here...
-
+// Handle number literals
 Token Lexer::number() {
     while (std::isdigit(peek())) advance();
     return Token(TokenType::NUMBER, source.substr(start, current - start), line);
 }
 
+// Handle identifiers and keywords
 Token Lexer::identifier() {
     while (std::isalnum(peek())) advance();
     std::string text = source.substr(start, current - start);
@@ -66,4 +71,4 @@ Token Lexer::identifier() {
     return Token(type, text, line);
 }
 
-// Implement other helper methods (advance, match, peek, isAtEnd, etc.)
+// TODO: Implement other helper methods (advance, match, peek, isAtEnd, etc.)
